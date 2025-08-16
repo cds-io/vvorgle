@@ -118,11 +118,34 @@ pub fn parse_input(input: &str) -> Result<Guess, String> {
     Ok(Guess::new(word, feedback))
 }
 
+// Embed the word list at compile time
+const WORD_LIST: &str = include_str!("../../words.txt");
+
 pub fn load_words() -> Result<Vec<String>, std::io::Error> {
+    // Parse the embedded word list
+    let words: Vec<String> = WORD_LIST
+        .lines()
+        .map(|word| word.trim().to_uppercase())
+        .filter(|word| word.len() == 5)
+        .collect();
+
+    if words.is_empty() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "No valid words found in embedded list"
+        ));
+    }
+
+    Ok(words)
+}
+
+// Optional: Keep ability to load from file for development
+#[allow(dead_code)]
+pub fn load_words_from_file(path: &str) -> Result<Vec<String>, std::io::Error> {
     use std::fs::File;
     use std::io::{BufRead, BufReader};
 
-    let file = File::open("words.txt")?;
+    let file = File::open(path)?;
     let reader = BufReader::new(file);
     let words: Vec<String> = reader
         .lines()

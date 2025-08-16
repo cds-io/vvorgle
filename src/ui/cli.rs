@@ -7,24 +7,13 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
     println!("I'll help you solve today's Wordle!");
     println!("Enter your guesses and feedback (e.g., 'CRANE BYYBB')\n");
 
-    // Load word list
-    let all_words = core::load_words().unwrap_or_else(|e| {
-        eprintln!("❌ Error loading words.txt: {}", e);
-        eprintln!("Creating a small default word list...");
-        vec![
-            "CRANE", "SLATE", "CRISP", "TRACE", "BRAKE", "GRAPE", "PRIME", "STALE", "BREAD",
-            "GREAT",
-        ]
-        .iter()
-        .map(|&s| s.to_string())
-        .collect()
-    });
-    
+    // Load embedded word list
+    let all_words = core::load_words().expect("Failed to load embedded word list");
     println!("✅ Loaded {} words\n", all_words.len());
     let mut candidates = all_words.clone();
 
     let mut state = GameState::new(candidates.clone());
-    
+
     println!("📝 Starting candidates: {}", state.candidates.len());
     let suggestion = solver.suggest_guess(&state, &all_words);
     println!("\n💡 Suggested first guess: {}\n", suggestion);
@@ -32,7 +21,7 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
     // Solver loop
     loop {
         print!(
-            "🎲 Attempt #{} - Enter 'GUESS FEEDBACK' (or 'quit'): ",
+            "🎲 Attempt #{} - Enter 'GUESS FEEDBACK' (or /h for help): ",
             state.attempt_count + 1
         );
         io::stdout().flush().unwrap();
@@ -43,9 +32,66 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
             .expect("Failed to read input");
         let input = input.trim();
 
-        if input.to_lowercase() == "quit" {
-            println!("👋 Thanks for playing!");
-            break;
+        // Handle commands
+        match input.to_lowercase().as_str() {
+            "/q" | "/quit" => {
+                println!("👋 Thanks for playing!");
+                break;
+            }
+            "/r" | "/reset" => {
+                println!("🔄 Restarting solver...");
+                state = GameState::new(all_words.clone());
+                println!("📝 Candidates reset to: {}", state.candidates.len());
+                let suggestion = solver.suggest_guess(&state, &all_words);
+                println!("\n💡 Suggested first guess: {}\n", suggestion);
+                continue;
+            }
+            "/h" | "/help" => {
+                println!("\n📚 Available commands:");
+                println!("  /h, /help   - Show this help message");
+                println!("  /s, /stats  - Show current game statistics");
+                println!("  /r, /reset  - Start over with a fresh word list");
+                println!("  /q, /quit   - Exit the solver");
+                println!("\n📝 Input format: WORD FEEDBACK");
+                println!("  Example: CRANE BYYGG");
+                println!("  G=Green(🟩), Y=Yellow(🟨), B=Black(⬜)\n");
+                continue;
+            }
+            "/s" | "/stats" => {
+                println!("\n📊 Current Statistics:");
+                println!("  Attempt:     #{}", state.attempt_count + 1);
+                println!("  Candidates:  {} words remaining", state.candidates.len());
+                println!("  Reduction:   {:.1}% eliminated", 
+                    (1.0 - state.candidates.len() as f64 / all_words.len() as f64) * 100.0);
+                
+                if !state.attempts.is_empty() {
+                    println!("\n📝 Previous guesses:");
+                    for (i, attempt) in state.attempts.iter().enumerate() {
+                        print!("  {}. {} → ", i + 1, attempt.word);
+                        for &fb in attempt.feedback.iter() {
+                            print!("{}", match fb {
+                                'G' => "🟩",
+                                'Y' => "🟨",
+                                _ => "⬜",
+                            });
+                        }
+                        println!();
+                    }
+                }
+                
+                if state.candidates.len() <= 20 && state.candidates.len() > 0 {
+                    println!("\n💡 Current candidates:");
+                    for chunk in state.candidates.chunks(5) {
+                        println!("  {}", chunk.join(", "));
+                    }
+                }
+                
+                println!();
+                continue;
+            }
+            _ => {
+                // Not a command, continue to parse as guess/feedback
+            }
         }
 
         // Parse the input
@@ -119,7 +165,10 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
                 if state.attempt_count >= 6 {
                     println!("\n😔 Reached maximum attempts!");
                     if state.candidates.len() <= 10 {
-                        println!("The word was likely one of: {}", state.candidates.join(", "));
+                        println!(
+                            "The word was likely one of: {}",
+                            state.candidates.join(", ")
+                        );
                     }
                     break;
                 }
@@ -139,24 +188,9 @@ pub fn run_game_mode() {
     println!("🎮 Wordle Game Mode");
     println!("==================");
 
-    // Load word list
-    let mut candidates = match core::load_words() {
-        Ok(words) => {
-            println!("✅ Loaded {} words from words.txt\n", words.len());
-            words
-        }
-        Err(e) => {
-            eprintln!("❌ Error loading words.txt: {}", e);
-            eprintln!("Creating a small default word list...");
-            vec![
-                "CRANE", "SLATE", "CRISP", "TRACE", "BRAKE", "GRAPE", "PRIME", "STALE", "BREAD",
-                "GREAT",
-            ]
-            .iter()
-            .map(|&s| s.to_string())
-            .collect()
-        }
-    };
+    // Load embedded word list
+    let mut candidates = core::load_words().expect("Failed to load embedded word list");
+    println!("✅ Loaded {} words\n", candidates.len());
 
     // Get the solution word
     print!("Enter the solution word (5 letters): ");

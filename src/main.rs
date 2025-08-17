@@ -2,15 +2,15 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 
-mod wordle;
 mod ui;
+mod wordle;
 
-use wordle::solver;
 use ui::cli;
+use wordle::solver;
 
 fn main() {
-    use std::io::{self, Write};
     use std::env;
+    use std::io::{self, Write};
 
     // Check for command-line arguments for strategy override
     let args: Vec<String> = env::args().collect();
@@ -19,7 +19,7 @@ fn main() {
             "--simple" => "simple",
             "--entropy" => "entropy",
             "--frequency" => "frequency",
-            _ => "entropy"
+            _ => "entropy",
         }
     } else {
         "entropy" // Default strategy
@@ -42,25 +42,27 @@ fn main() {
     match choice.trim() {
         "1" => {
             let solver = solver::create_solver(strategy);
-            println!("\n📊 Using {} strategy", 
+            println!(
+                "\n📊 Using {} strategy",
                 match strategy {
                     "simple" => "Simple",
                     "frequency" => "Frequency Analyzer",
-                    _ => "Entropy Maximizer (optimal)"
+                    _ => "Entropy Maximizer (optimal)",
                 }
             );
-            
+
             cli::run_solver_mode(solver);
         }
         "2" => cli::run_game_mode(),
         _ => {
             println!("Invalid choice. Defaulting to Solver Mode.");
             let solver = solver::create_solver(strategy);
-            println!("📊 Using {} strategy", 
+            println!(
+                "📊 Using {} strategy",
                 match strategy {
                     "simple" => "Simple",
                     "frequency" => "Frequency Analyzer",
-                    _ => "Entropy Maximizer (optimal)"
+                    _ => "Entropy Maximizer (optimal)",
                 }
             );
             cli::run_solver_mode(solver);

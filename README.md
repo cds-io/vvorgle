@@ -25,6 +25,20 @@ A Rust-based Wordle solver with multiple solving strategies, including an entrop
 cargo build --release
 ```
 
+### Setting up Git Hooks
+
+This project includes a pre-commit hook that automatically runs `cargo fmt` before each commit. To set it up:
+
+```bash
+# Run the setup script
+./setup-hooks.sh
+
+# Or manually set git to use the .githooks directory
+git config core.hooksPath .githooks
+```
+
+The hook will ensure all Rust code is properly formatted before commits. To bypass it for a single commit, use `git commit --no-verify`.
+
 ## Usage
 
 ### Solver Mode (Help solve a Wordle)

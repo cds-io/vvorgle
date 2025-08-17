@@ -132,7 +132,7 @@ pub fn load_words() -> Result<Vec<String>, std::io::Error> {
     if words.is_empty() {
         return Err(std::io::Error::new(
             std::io::ErrorKind::InvalidData,
-            "No valid words found in embedded list"
+            "No valid words found in embedded list",
         ));
     }
 

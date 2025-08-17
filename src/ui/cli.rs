@@ -10,9 +10,8 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
     // Load embedded word list
     let all_words = core::load_words().expect("Failed to load embedded word list");
     println!("✅ Loaded {} words\n", all_words.len());
-    let mut candidates = all_words.clone();
 
-    let mut state = GameState::new(candidates.clone());
+    let mut state = GameState::new(all_words.clone());
 
     println!("📝 Starting candidates: {}", state.candidates.len());
     let suggestion = solver.suggest_guess(&state, &all_words);
@@ -61,31 +60,36 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
                 println!("\n📊 Current Statistics:");
                 println!("  Attempt:     #{}", state.attempt_count + 1);
                 println!("  Candidates:  {} words remaining", state.candidates.len());
-                println!("  Reduction:   {:.1}% eliminated", 
-                    (1.0 - state.candidates.len() as f64 / all_words.len() as f64) * 100.0);
-                
+                println!(
+                    "  Reduction:   {:.1}% eliminated",
+                    (1.0 - state.candidates.len() as f64 / all_words.len() as f64) * 100.0
+                );
+
                 if !state.attempts.is_empty() {
                     println!("\n📝 Previous guesses:");
                     for (i, attempt) in state.attempts.iter().enumerate() {
                         print!("  {}. {} → ", i + 1, attempt.word);
                         for &fb in attempt.feedback.iter() {
-                            print!("{}", match fb {
-                                'G' => "🟩",
-                                'Y' => "🟨",
-                                _ => "⬜",
-                            });
+                            print!(
+                                "{}",
+                                match fb {
+                                    'G' => "🟩",
+                                    'Y' => "🟨",
+                                    _ => "⬜",
+                                }
+                            );
                         }
                         println!();
                     }
                 }
-                
+
                 if state.candidates.len() <= 20 && state.candidates.len() > 0 {
                     println!("\n💡 Current candidates:");
                     for chunk in state.candidates.chunks(5) {
                         println!("  {}", chunk.join(", "));
                     }
                 }
-                
+
                 println!();
                 continue;
             }

@@ -24,7 +24,7 @@ impl GameState {
             attempt_count: 0,
         }
     }
-    
+
     pub fn add_attempt(&mut self, guess: Guess) {
         self.attempts.push(guess);
         self.attempt_count += 1;

@@ -10,7 +10,7 @@ A Rust-based Wordle solver with multiple solving strategies, including an entrop
 
 - **Multiple Solving Strategies**:
   - **Simple**: Fast, picks alphabetically first candidate
-  - **Entropy Maximizer**: Smart algorithm that maximizes information gain
+  - **Entropy Maximizer**: Smart algorithm that maximizes information gain (see `algo.md` for details)
   - **Frequency Analyzer**: (Placeholder for letter frequency analysis)
 
 - **Smart Filtering**:
@@ -18,6 +18,11 @@ A Rust-based Wordle solver with multiple solving strategies, including an entrop
   - Yellow letters (wrong position) 
   - Black/Gray letters (not in word)
   - Handles duplicate letters correctly
+
+- **Letter Pool Tracking**:
+  - Automatically tracks available letters (A-Z initially)
+  - Removes eliminated letters based on gray feedback
+  - Displays remaining letters in stats view
 
 ## Installation
 
@@ -114,12 +119,17 @@ The codebase is organized into modules:
 src/
 ├── main.rs           # Entry point
 ├── wordle/
-│   ├── types.rs      # Core data structures
+│   ├── types.rs      # Core data structures (including letter pool)
 │   ├── core.rs       # Filtering and feedback logic
-│   └── solver.rs     # Solver strategies
+│   ├── solver.rs     # Solver strategies (entropy, simple, etc.)
+│   └── analyzer.rs   # Starting word analyzer tool
 └── ui/
-    └── cli.rs        # User interface
+    └── cli.rs        # User interface with letter pool display
 ```
+
+Key documentation:
+- `CLAUDE.md`: Development guidelines for Claude Code
+- `algo.md`: Mathematical explanation of Shannon entropy for Wordle
 
 ## Testing
 

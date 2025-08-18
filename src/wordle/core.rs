@@ -119,7 +119,7 @@ pub fn parse_input(input: &str) -> Result<Guess, String> {
 }
 
 // Embed the word list at compile time
-const WORD_LIST: &str = include_str!("../../words.txt");
+const WORD_LIST: &str = include_str!("../../dict/words.txt");
 
 pub fn load_words() -> Result<Vec<String>, std::io::Error> {
     // Parse the embedded word list

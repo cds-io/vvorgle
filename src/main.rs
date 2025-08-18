@@ -6,25 +6,96 @@ mod ui;
 mod wordle;
 
 use ui::cli;
-use wordle::solver;
+use wordle::{analyzer::StartingWordAnalyzer, solver};
 
 fn main() {
     use std::env;
     use std::io::{self, Write};
 
-    // Check for command-line arguments for strategy override
+    // Check for command-line arguments
     let args: Vec<String> = env::args().collect();
-    let strategy = if args.len() > 1 {
-        match args[1].as_str() {
-            "--simple" => "simple",
-            "--entropy" => "entropy",
-            "--frequency" => "frequency",
-            _ => "entropy",
-        }
-    } else {
-        "entropy" // Default strategy
-    };
+    let mut strategy = "entropy";
+    let mut analyze_starters = false;
+    let mut analyze_word: Option<String> = None;
 
+    let mut i = 1;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--simple" => strategy = "simple",
+            "--entropy" => strategy = "entropy",
+            "--frequency" => strategy = "frequency",
+            "--analyze-starters" => analyze_starters = true,
+            "--analyze" => {
+                if i + 1 < args.len() {
+                    analyze_word = Some(args[i + 1].clone());
+                    i += 1;
+                } else {
+                    eprintln!("Error: --analyze requires a word argument");
+                    return;
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+
+    // Handle analysis modes
+    if analyze_starters {
+        println!("🔬 Analyzing word list to find best starting words...");
+        println!("This may take a minute...\n");
+
+        let analyzer = StartingWordAnalyzer::new().expect("Failed to load words");
+        let best = analyzer.find_best_starters(20);
+
+        println!("\n📊 Top 20 Starting Words by Entropy:\n");
+        println!("Rank  Word   Entropy  E[remaining]  P(win)");
+        println!("─────────────────────────────────────────────");
+
+        for (i, (word, entropy, exp_rem, p_win)) in best.iter().enumerate() {
+            println!(
+                "{:3}   {}   {:.3}     {:.1}        {:.4}",
+                i + 1,
+                word,
+                entropy,
+                exp_rem,
+                p_win
+            );
+        }
+
+        println!("\n💡 Best overall starter: {}\n", best[0].0);
+        return;
+    }
+
+    if let Some(word) = analyze_word {
+        println!("🔬 Analyzing '{}' as a starting word...\n", word);
+
+        let analyzer = StartingWordAnalyzer::new().expect("Failed to load words");
+
+        if let Some((entropy, exp_rem, p_win, patterns)) = analyzer.analyze_word(&word) {
+            println!("📊 Statistics for '{}':", word.to_uppercase());
+            println!("  Entropy: {:.3} bits", entropy);
+            println!("  Expected remaining: {:.1} words", exp_rem);
+            println!("  P(instant win): {:.4}\n", p_win);
+
+            println!("🎯 Top 10 most common patterns:");
+            for (i, (pid, count)) in patterns.iter().take(10).enumerate() {
+                let pattern = wordle::analyzer::pattern_to_string(*pid);
+                let percentage = (*count as f64 / 2316.0) * 100.0;
+                println!(
+                    "  {:2}. {} - {} times ({:.1}%)",
+                    i + 1,
+                    pattern,
+                    count,
+                    percentage
+                );
+            }
+        } else {
+            eprintln!("Error: Could not analyze '{}'", word);
+        }
+        return;
+    }
+
+    // Normal game modes
     println!("🎮 Wordle CLI");
     println!("=============\n");
     println!("Choose mode:");

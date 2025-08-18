@@ -237,6 +237,7 @@ board
 boast
 bobby
 bolus
+boner
 boney
 bongo
 bonus
@@ -1601,6 +1602,7 @@ risen
 riser
 risky
 rival
+riven
 river
 rivet
 roach
@@ -1636,6 +1638,7 @@ sadly
 safer
 saint
 salad
+salet
 sally
 salon
 salsa

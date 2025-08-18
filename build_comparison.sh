@@ -9,7 +9,7 @@ cargo build --release 2>/dev/null
 
 # Get file sizes
 BINARY_SIZE=$(ls -lh target/release/wordle | awk '{print $5}')
-WORDS_SIZE=$(ls -lh words.txt | awk '{print $5}')
+WORDS_SIZE=$(ls -lh dict/words.txt | awk '{print $5}')
 
 echo "📊 Size Analysis:"
 echo "  Word list file:  $WORDS_SIZE"
@@ -25,9 +25,9 @@ echo ""
 
 echo "📝 Compression Analysis:"
 # Create compressed version for comparison
-gzip -c words.txt > words.txt.gz 2>/dev/null
-COMPRESSED_SIZE=$(ls -lh words.txt.gz | awk '{print $5}')
-rm words.txt.gz
+gzip -c dict/words.txt > dict/words.txt.gz 2>/dev/null
+COMPRESSED_SIZE=$(ls -lh dict/words.txt.gz | awk '{print $5}')
+rm dict/words.txt.gz
 
 echo "  Uncompressed in binary: ~13 KB"
 echo "  If compressed: ~$COMPRESSED_SIZE"

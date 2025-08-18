@@ -32,6 +32,7 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
         let input = input.trim();
 
         // Handle commands
+
         match input.to_lowercase().as_str() {
             "/q" | "/quit" => {
                 println!("👋 Thanks for playing!");
@@ -64,6 +65,20 @@ pub fn run_solver_mode(solver: Box<dyn SolverStrategy>) {
                     "  Reduction:   {:.1}% eliminated",
                     (1.0 - state.candidates.len() as f64 / all_words.len() as f64) * 100.0
                 );
+
+                let available = state.get_available_letters_sorted();
+                if !available.is_empty() {
+                    println!("\n🔤 Available Letters ({}):", available.len());
+                    print!("  ");
+                    for (i, letter) in available.iter().enumerate() {
+                        if i > 0 && i % 13 == 0 {
+                            println!();
+                            print!("  ");
+                        }
+                        print!("{} ", letter);
+                    }
+                    println!();
+                }
 
                 if !state.attempts.is_empty() {
                     println!("\n📝 Previous guesses:");

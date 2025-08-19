@@ -19,14 +19,10 @@ Let:
   (0=gray, 1=yellow, 2=green; $L$ = word length)
 * For each pattern $r$, define a bucket $C_r=\{s\in C:\ f(g,s)=r\}$ with probability
 
-  $$
-  p_r=\frac{|C_r|}{|C|}\quad \text{(uniform prior)}
-  $$
+  $p_r=\frac{|C_r|}{|C|}\quad \text{(uniform prior)}$
 * **Entropy score for guess $g$** (in bits):
 
-  $$
-  H(g)=-\sum_r p_r \log_2 p_r
-  $$
+  $H(g)=-\sum_r p_r \log_2 p_r$
 
 **Interpretation.** A high-entropy guess splits the candidates into **even** buckets, so *whatever* feedback arrives, you discard a large fraction of $C$.
 
@@ -122,13 +118,13 @@ We’ll show each turn’s **actual feedback**, candidate shrink, and **realized
 
 > (In a real solver, you’d pick the guess with **maximum entropy** at each turn. Here we walk one consistent path.)
 
-\| Turn | Guess | Actual Feedback | $|C|$ before → after | Realized info (bits) |
-\|---:|:-----:|:----------------:|:----------------------:|---------------------:|
-\| 1 | `ABC` | `YBY` | 22 → 3 | $\log_2(22/3) ≈ 2.874$ |
-\| 2 | `BAD` | `BYY` | 3 → 2 | $\log_2(3/2) ≈ 0.585$ |
-\| 3 | `ADB` | `YGB` | 2 → 1 | $\log_2(2/1) = 1.000$ |
-\| 4 | `DAC` | `YYY` | 1 → 1 | $0$ |
-\| 5 | `CDA` | `GGG` | 1 → 1 | $0$ |
+| Turn | Guess | Actual Feedback | $\|C\|$ before → after | Realized info (bits) |
+|---:|:-----:|:----------------:|:----------------------:|---------------------:|
+| 1 | `ABC` | `YBY` | 22 → 3 | $\log_2(22/3) ≈ 2.874$ |
+| 2 | `BAD` | `BYY` | 3 → 2 | $\log_2(3/2) ≈ 0.585$ |
+| 3 | `ADB` | `YGB` | 2 → 1 | $\log_2(2/1) = 1.000$ |
+| 4 | `DAC` | `YYY` | 1 → 1 | $0$ |
+| 5 | `CDA` | `GGG` | 1 → 1 | $0$ |
 
 **Cumulative info:** $2.874 + 0.585 + 1 = 4.459\ \text{bits} = \log_2(22)$.
 This matches the information needed to move from 22 possibilities to 1—our solver’s progress adds up exactly.
